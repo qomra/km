@@ -45,7 +45,9 @@ fi
 
 # Start the server with verbose logging in development mode
 echo -e "${YELLOW}Starting API server in development mode with verbose logging...${NC}"
-NODE_ENV=development node server/server.js > server.log 2>&1 &
+# We must be consistent with environment settings - using development mode
+export NODE_ENV=development 
+node server/server.js > server.log 2>&1 &
 SERVER_PID=$!
 
 # Wait for server to start
@@ -93,7 +95,11 @@ rm .env
 
 # Start the React app with development environment
 echo -e "${YELLOW}Starting React app with development API endpoints...${NC}"
-REACT_APP_API_URL=http://localhost:3001/api REACT_APP_ENV=development NODE_ENV=development npx serve -s build > client.log 2>&1 &
+# We need to make sure we consistently use the NODE_ENV=development for the client
+export REACT_APP_API_URL=http://localhost:3001/api
+export REACT_APP_ENV=development
+export NODE_ENV=development
+npx serve -s build > client.log 2>&1 &
 REACT_PID=$!
 
 echo -e "${BLUE}=== Servers started successfully ===${NC}"
