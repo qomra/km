@@ -1,0 +1,130 @@
+import React, { memo, useCallback, useMemo } from 'react';
+import { useDataContext } from '../contexts/DataContext';
+
+// Simple word item component
+const WordItem = memo(({ word, isSelected, onClick }) => {
+  return (
+    <li 
+      className={`list-item ${isSelected ? 'selected' : ''}`}
+      onClick={() => onClick(word)}
+    >
+      {word}
+    </li>
+  );
+}, (prevProps, nextProps) => {
+  // Only re-render if these props change
+  return prevProps.isSelected === nextProps.isSelected && 
+         prevProps.word === nextProps.word;
+});
+
+// Memoize the entire component to prevent unnecessary re-renders
+const WordsList = memo(() => {
+  const { 
+    currentWords, 
+    selectedWord,
+    setCurrentWords,
+    currentRoot,
+    loading
+  } = useDataContext();
+
+  // Memoize the click handler to prevent unnecessary re-renders
+  // Toggle word - if it's in the list, remove it; otherwise, add it
+  const handleWordClick = useCallback((word) => {
+    // Check if word exists in the list
+    const isInList = currentWords.includes(word);
+    
+    if (isInList) {
+      // If in list, remove it
+      const newWords = currentWords.filter(w => w !== word);
+      setCurrentWords(newWords);
+    } else {
+      // If not in list, add it
+      setCurrentWords([...currentWords, word]);
+    }
+  }, [currentWords, setCurrentWords]);
+
+  // Memoize all UI states unconditionally
+  const loadingUI = useMemo(() => (
+    <div className="words-list">
+      <h3 className="list-title">الكلمات</h3>
+      <div className="loading">جاري التحميل...</div>
+    </div>
+  ), []);
+
+  // Memoize the empty state UI
+  const emptyStateUI = useMemo(() => (
+    <div className="words-list">
+      <h3 className="list-title">الكلمات</h3>
+      {!currentRoot ? (
+        <div className="empty-state">الرجاء اختيار جذر أولاً</div>
+      ) : (
+        <div className="empty-state">لا توجد كلمات للجذر "{currentRoot}"</div>
+      )}
+    </div>
+  ), [currentRoot]);
+
+  // Memoize the words list to prevent unnecessary re-renders
+  const wordsListContent = useMemo(() => (
+    <div className="words-list">
+      <h3 className="list-title">الكلمات</h3>
+      <ul className="list">
+        {currentWords.map((word, index) => (
+          <WordItem 
+            key={`${word}-${index}`}
+            word={word}
+            isSelected={selectedWord === word}
+            onClick={handleWordClick}
+          />
+        ))}
+      </ul>
+    </div>
+  ), [currentWords, selectedWord, handleWordClick]);
+  
+  // Simplified render approach
+  if (loading) {
+    return (
+      <div className="words-list">
+        <h3 className="list-title">الكلمات</h3>
+        <div className="words-container">
+          <div className="loading">جاري التحميل...</div>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!currentRoot || currentWords.length === 0) {
+    return (
+      <div className="words-list">
+        <h3 className="list-title">الكلمات</h3>
+        <div className="words-container">
+          {!currentRoot ? (
+            <div className="empty-state">الرجاء اختيار جذر أولاً</div>
+          ) : (
+            <div className="empty-state">لا توجد كلمات للجذر "{currentRoot}"</div>
+          )}
+        </div>
+      </div>
+    );
+  }
+  
+  // Words list content
+  return (
+    <div className="words-list">
+      <h3 className="list-title">الكلمات</h3>
+      <div className="words-container">
+        <ul className="list">
+          {currentWords.map((word, index) => (
+            <WordItem 
+              key={`${word}-${index}`}
+              word={word}
+              isSelected={selectedWord === word}
+              onClick={handleWordClick}
+            />
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+});
+
+export default WordsList;

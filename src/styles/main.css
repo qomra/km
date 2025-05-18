@@ -1,0 +1,1027 @@
+/* Main styles for Arabic Roots Analyzer */
+
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --accent-color: #66d855;
+    --background-color: #ffffff;
+    --text-color: #333333;
+    --border-color: #cccccc;
+    --highlight-color: #009900;
+    --sidebar-color: #f5f5f5;
+    --hover-color: #e0e0e0;
+    --selected-color: #3498db;
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Tajawal', 'Amiri', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+      Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    direction: rtl;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    text-align: right;
+  }
+  
+  /* Layout */
+  .app-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0; /* Important for flex items to shrink below min-content */
+    height: 100vh; /* Full viewport height */
+    position: relative; /* For absolute positioning if needed */
+  }
+  
+  .sidebar {
+    width: 300px;
+    min-width: 150px; /* Minimum width to maintain usability */
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border-color);
+    background-color: var(--sidebar-color);
+    transition: width 0.3s ease;
+    height: 100vh; /* Full viewport height */
+    overflow: hidden; /* Prevent sidebar overflow */
+  }
+  
+  /* Media Queries for Responsive Layout */
+  @media (max-width: 992px) {
+    .sidebar {
+      width: 250px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 200px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .sidebar {
+      width: 150px;
+    }
+    
+    .list-item {
+      padding: 0.5rem;
+      font-size: 14px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .app-container {
+      flex-direction: column;
+    }
+    
+    .sidebar {
+      width: 100%;
+      height: auto;
+      max-height: 60vh;
+      min-height: 400px;
+      border-right: none;
+      border-bottom: 1px solid var(--border-color);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .roots-list {
+      height: 50%;
+      min-height: 200px;
+      -webkit-overflow-scrolling: touch; /* Improve scrolling on iOS */
+    }
+    
+    .words-list {
+      height: 50%;
+      min-height: 200px;
+      -webkit-overflow-scrolling: touch; /* Improve scrolling on iOS */
+    }
+    
+    .roots-container, .words-container {
+      max-height: calc(100% - 50px);
+    }
+  }
+  
+  /* Header */
+  .app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .app-title {
+    font-size: 1.2rem;
+    margin: 0;
+  }
+  
+  /* Dictionary Selector */
+  .dictionary-selector {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .dictionary-label {
+    font-weight: bold;
+    margin-right: 0.5rem;
+    font-family: 'Tajawal', sans-serif;
+  }
+  
+  .dictionary-select {
+    flex: 1;
+    padding: 0.4rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  .dictionary-select:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+  }
+  
+  @media (max-width: 768px) {
+    .dictionary-selector {
+      padding: 0.5rem 0.8rem;
+    }
+    
+    .dictionary-select {
+      font-size: 13px;
+      padding: 0.3rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .dictionary-selector {
+      padding: 0.4rem 0.6rem;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .dictionary-label {
+      margin-bottom: 0.3rem;
+      margin-right: 0;
+    }
+    
+    .dictionary-select {
+      width: 100%;
+      font-size: 12px;
+    }
+  }
+  
+  /* Root List */
+  .roots-list {
+    height: 50%; /* Set to exactly 50% of sidebar height */
+    min-height: 200px; /* Minimum height to ensure usability */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Important for containing scrollable content */
+  }
+  
+  .list-title {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    font-size: 18px;
+    font-weight: bold;
+    border-bottom: 1px solid var(--border-color);
+    font-family: 'Tajawal', sans-serif;
+  }
+  
+  .loading {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-color);
+  }
+  
+  .roots-container {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    max-height: calc(100% - 110px); /* Account for header and completion bar */
+  }
+  
+  .roots-container::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .roots-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  .roots-container::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+  }
+  
+  .roots-container::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+  }
+  
+  .list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  
+  .list-item {
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+    user-select: none; /* Prevent text selection during double clicks */
+    position: relative; /* For proper hover effects */
+    font-family: 'Amiri', serif;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between; /* Place root and count on opposite sides */
+    align-items: center;
+  }
+  
+  /* Root text and word count styling */
+  .root-text {
+    flex: 1;
+    font-weight: inherit;
+  }
+  
+  .word-count {
+    margin-right: 5px;
+    font-size: 13px;
+    opacity: 0.9;
+    font-weight: normal;
+    text-align: right;
+    min-width: 60px; /* Give enough space for count display */
+  }
+  
+  .list-item:hover {
+    background-color: var(--hover-color);
+  }
+  
+  .list-item.selected {
+    color: white; /* White text for contrast */
+    font-weight: bold;
+    z-index: 2; /* Ensure selected item is on top */
+    background-color: #009900; /* Solid green background */
+    position: relative; /* For the indicator */
+    border-right: 5px solid #006400; /* Darker green vertical bar */
+    box-shadow: 0 0 5px rgba(0, 153, 0, 0.5); /* Subtle shadow for emphasis */
+  }
+  
+  /* Add a check mark indicator to show a word is selected */
+  .list-item.selected::before {
+    content: "✓";
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: white;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.3); /* Shadow for visibility */
+    z-index: 3; /* Ensure it's above other content */
+  }
+  
+  /* Add some padding to the left of the root text in selected items to make room for the checkmark */
+  .list-item.selected .root-text {
+    padding-left: 12px;
+  }
+  
+  .list-item.completed {
+    background-color: #00b300; /* Solid green background */
+    color: white; /* White text for contrast */
+    border-right: 4px solid #008000; /* Darker green border */
+    font-weight: bold; /* Bold text */
+  }
+  
+  /* When an item is both selected and completed, make selection take precedence */
+  .list-item.selected.completed {
+    color: white; /* White text */
+    font-weight: bold;
+    background-color: #008000; /* Darker green than completed but still visible */
+    border-right: 6px solid #004d00; /* Very dark green border */
+    box-shadow: 0 0 8px rgba(0, 153, 0, 0.6); /* Stronger glow */
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.5); /* Text glow for emphasis */
+  }
+  
+  /* Completion indicator */
+  .completion {
+    padding: 0.5rem 1rem;
+    font-size: 14px;
+    border-top: 1px solid var(--border-color);
+    position: sticky;
+    bottom: 0;
+    background-color: var(--sidebar-color);
+    z-index: 100;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    max-height: 80px; /* Limit height to prevent taking too much space */
+  }
+  
+  .completion-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .toggle-completed {
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: var(--border-color);
+    color: var(--text-color);
+    border: none;
+    cursor: pointer;
+  }
+  
+  .toggle-completed.active {
+    background-color: var(--highlight-color);
+    color: white;
+  }
+  
+  .progress-bar {
+    height: 10px;
+    background-color: #eee;
+    border-radius: 5px;
+    margin-top: 5px;
+  }
+  
+  .progress {
+    height: 100%;
+    background-color: var(--highlight-color);
+    border-radius: 5px;
+    transition: width 0.5s ease-out;
+  }
+  
+  @media (max-width: 576px) {
+    .completion-stats {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+    
+    .toggle-completed {
+      width: 100%;
+    }
+  }
+
+  /* Edit Panel */
+  .edit-panel {
+    display: flex;
+    align-items: center;
+    padding: 0.4rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: rgba(102, 216, 85, 0.1);
+    width: 100%;
+  }
+
+  .edit-button {
+    background-color: var(--highlight-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+    display: inline-block;
+  }
+
+  .edit-button:hover {
+    background-color: #55b547;
+  }
+
+  .edit-controls {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    white-space: nowrap;
+  }
+
+  .edit-input {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 16px;
+    flex: 1;
+    min-width: 100px;
+    max-width: 250px;
+    min-height: 2.5rem;
+  }
+
+  .edit-buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    white-space: nowrap;
+  }
+  
+  .edit-buttons button {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .save-button {
+    background-color: var(--highlight-color);
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    flex: 1;
+    font-size: 16px;
+  }
+
+  .cancel-button {
+    background-color: #f8f8f8;
+    border: 1px solid var(--border-color);
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    flex: 1;
+    font-size: 16px;
+  }
+
+  .save-button:hover {
+    background-color: #55b547;
+  }
+
+  .cancel-button:hover {
+    background-color: #eaeaea;
+  }
+  
+  @media (max-width: 768px) {
+    .edit-controls {
+      flex-direction: row;
+      align-items: center;
+    }
+    
+    .edit-panel {
+      padding: 0.4rem;
+    }
+    
+    .edit-button {
+      padding: 0.4rem 0.6rem;
+      font-size: 13px;
+    }
+    
+    .edit-input {
+      padding: 0.4rem;
+      font-size: 14px;
+      width: 100%;
+    }
+    
+    .save-button, .cancel-button {
+      padding: 0.4rem 0.6rem;
+      font-size: 13px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .edit-panel {
+      padding: 0.3rem;
+    }
+    
+    .edit-button {
+      padding: 0.3rem 0.5rem;
+      font-size: 12px;
+    }
+    
+    .edit-input {
+      padding: 0.3rem;
+      font-size: 13px;
+    }
+    
+    .save-button, .cancel-button {
+      padding: 0.3rem 0.5rem;
+      font-size: 12px;
+    }
+  }
+
+  /* Audio player */
+  .audio-container {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: #f9f9f9;
+  }
+  
+  .audio-player {
+    margin-top: 0.5rem; /* Reduced margin */
+    margin-bottom: 0.5rem; /* Reduced margin */
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping */
+    gap: 0.5rem;
+    align-items: center;
+    height: 7%; /* Fixed ratio: 7% of main content height */
+    overflow: hidden; /* Prevent overflow */
+  }
+  
+  .audio-player audio {
+    width: 100%;
+  }
+  
+  .audio-controls {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  /* Speed input styling */
+  .speed-input {
+    width: 40px;
+    text-align: center;
+    padding: 0.3rem;
+    margin-right: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+  }
+  
+/* General button styling */
+button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--background-color);
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  font-family: 'Tajawal', sans-serif;
+}
+
+button:hover {
+  background-color: var(--hover-color);
+}
+
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.5);
+}
+
+/* Delete button styling */
+button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.control-panel button:nth-child(4):not([disabled]) {
+  background-color: #e74c3c;
+  color: white;
+  font-weight: bold;
+  animation: pulse 1.5s infinite;
+}
+
+/* Pulse animation for delete button */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0px rgba(231, 76, 60, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 8px rgba(231, 76, 60, 0);
+  }
+}
+
+/* Empty state and error message styling */
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border-radius: 4px;
+  font-style: italic;
+  font-family: 'Amiri', serif;
+}
+
+/* Text content styling */
+.text-content {
+  font-family: 'Amiri', serif;
+  font-size: 18px;
+  line-height: 1.5; /* Reduced line height */
+  padding: 0.75rem; /* Reduced padding */
+  background-color: #fdfdfd;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  text-align: right;
+  flex: 1; /* Fill available space in the container */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden; /* Hide horizontal overflow */
+  height: 100%; /* Full height of container */
+  max-height: 100%; /* Don't exceed container */
+  min-height: 100px; /* Minimum height */
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: #aaa #f1f1f1; /* For Firefox - thumb and track colors */
+  position: relative; /* For the scroll indicator */
+}
+
+.text-edit-area {
+  width: 100%;
+  height: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  resize: none;
+  font-family: 'Amiri', serif;
+  font-size: 18px;
+  line-height: 1.5;
+  background-color: #fdfdfd;
+  direction: rtl;
+}
+
+/* Scroll indicator */
+.text-content::after {
+  content: "↓"; /* Down arrow to indicate scrollability */
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 30px;
+  background: rgba(170, 170, 170, 0.7);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none; /* Don't interfere with scrolling */
+  z-index: 100;
+}
+
+/* Show scroll indicator when content is scrollable and not scrolled to bottom */
+.text-content.is-scrollable:not(.scrolled-bottom):hover::after {
+  opacity: 0.9;
+}
+
+/* Add a subtle box shadow to indicate scrollable content */
+.text-content.is-scrollable {
+  box-shadow: inset 0 -8px 8px -8px rgba(0, 0, 0, 0.15);
+}
+
+/* Highlighted word styling - MUCH more noticeable green */
+.highlighted-word {
+  color: #008000; /* Dark green */
+  background-color: rgba(0, 153, 0, 0.15); /* Light green background */
+  cursor: pointer;
+  display: inline-block;
+  line-height: 1.4;
+  font-weight: bold;
+  text-decoration: underline;
+  margin: 0 2px;
+  padding: 0 2px;
+  border-radius: 2px;
+  text-shadow: 0px 0px 1px rgba(0, 153, 0, 0.4); /* Stronger text shadow */
+}
+
+/* AI content container */
+.ai-content {
+  margin-bottom: 0.5rem;
+  height: 20%; /* Fixed ratio: 20% of main content height */
+  min-height: 100px; /* Minimum height to maintain usability */
+  display: flex;
+  flex-direction: column;
+  overflow: visible; /* Allow inner content to scroll */
+  position: relative; /* For absolute positioning if needed */
+}
+
+/* AI text content styling */
+.ai-text {
+  font-family: 'Amiri', serif;
+  font-size: 16px;
+  line-height: 1.4; /* Reduced line height */
+  padding: 0.75rem; /* Reduced padding */
+  background-color: #f8f9fa;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: #495057;
+  text-align: right;
+  flex: 1; /* Fill available space in the container */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden; /* Hide horizontal overflow */
+  scrollbar-width: thin; /* Thinner scrollbar for Firefox */
+  height: 100%; /* Full height of container */
+  max-height: 100%; /* Don't exceed container */
+  min-height: 50px; /* Minimum height */
+  position: relative; /* For the scroll indicator */
+}
+
+/* Add a subtle box shadow to indicate scrollable AI content */
+.ai-text.is-scrollable {
+  box-shadow: inset 0 -8px 8px -8px rgba(0, 0, 0, 0.15);
+}
+
+/* Scroll indicator for AI text */
+.ai-text::after {
+  content: "↓"; /* Down arrow to indicate scrollability */
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px; /* Smaller than text-content indicator */
+  height: 20px;
+  background: rgba(170, 170, 170, 0.7);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none; /* Don't interfere with scrolling */
+  z-index: 100;
+}
+
+/* Show scroll indicator when content is scrollable and not scrolled to bottom */
+.ai-text.is-scrollable:not(.scrolled-bottom):hover::after {
+  opacity: 0.9;
+}
+
+/* Additional AI text styles */
+.ai-text .ai-placeholder {
+  font-style: italic;
+  color: #666;
+}
+
+/* Text display container */
+.text-display-container {
+  margin-bottom: 0.5rem; /* Reduced spacing */
+  flex: 1; /* Fill available space in parent */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Hide any overflow */
+  height: calc(100% - 50px); /* Calculate height accounting for the root header */
+}
+
+/* Webkit scrollbar styling for text display and text content */
+.text-display-container::-webkit-scrollbar,
+.text-content::-webkit-scrollbar,
+.ai-text::-webkit-scrollbar {
+  width: 8px; /* Slightly wider for better visibility */
+}
+
+.text-display-container::-webkit-scrollbar-track,
+.text-content::-webkit-scrollbar-track,
+.ai-text::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.text-display-container::-webkit-scrollbar-thumb,
+.text-content::-webkit-scrollbar-thumb,
+.ai-text::-webkit-scrollbar-thumb {
+  background: #aaa; /* Darker for better visibility */
+  border-radius: 4px;
+}
+
+.text-display-container::-webkit-scrollbar-thumb:hover,
+.text-content::-webkit-scrollbar-thumb:hover,
+.ai-text::-webkit-scrollbar-thumb:hover {
+  background: #888; /* Even darker on hover */
+}
+
+/* Control panel */
+.control-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  min-height: 8%; /* Minimum ratio: 8% of main content height */
+  overflow: visible; /* Allow content to be visible */
+}
+
+.control-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  gap: 0.5rem;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  overflow-x: auto;
+}
+
+/* Force control buttons to stay on one line */
+.control-group button {
+  flex-shrink: 0;
+  display: inline-block;
+  white-space: nowrap;
+  min-width: max-content;
+}
+
+.edit-container {
+  flex: 0 1 auto;
+  min-width: 200px;
+  max-width: 500px;
+  margin-right: 0.5rem;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+.edit-container-expanded {
+  flex: 0 1 auto;
+  min-width: 200px;
+  max-width: 500px;
+  margin-right: 0;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+.prefix-panel button, .diacritics-panel button {
+  font-family: 'Amiri', serif;
+  min-width: 40px;
+  padding: 0.4rem 0.6rem;
+}
+
+/* Words list */
+.words-list {
+  height: 50%; /* Set to exactly 50% of sidebar height */
+  min-height: 200px; /* Minimum height to ensure usability */
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Important for containing scrollable content */
+}
+
+/* Word search styling */
+.word-search {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-family: 'Amiri', serif;
+  font-size: 14px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* Words container (needed to match the structure of the roots list) */
+.words-container {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  max-height: calc(100% - 50px); /* Account for header */
+}
+
+.words-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.words-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.words-container::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+.words-container::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+/* Root header styling */
+.root-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  font-family: 'Tajawal', sans-serif;
+  height: 40px; /* Fixed height to prevent layout shifts */
+}
+
+.root-label {
+  font-weight: 500;
+}
+
+.root-value {
+  font-weight: 700;
+  font-family: 'Amiri', serif;
+  color: var(--primary-color);
+}
+
+/* Text actions styling */
+.text-actions {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 0.5rem;
+  overflow-x: auto;
+  min-height: 40px;
+  align-items: center;
+}
+
+.text-buttons {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  gap: 0.5rem;
+  white-space: nowrap !important;
+  width: 100%;
+}
+
+/* Force buttons to stay on one line */
+.text-actions button,
+.control-group button {
+  flex-shrink: 0 !important;
+  display: inline-block !important;
+  white-space: nowrap !important;
+  min-width: max-content !important;
+  margin-bottom: 0 !important;
+  float: none !important;
+}
+
+.text-display {
+  margin-bottom: 0.5rem; /* Reduced spacing */
+  height: 64%; /* Fixed ratio: 64% of main content height (adjusted to ensure totals sum to 100% with margins) */
+  min-height: 200px; /* Minimum height to maintain usability */
+  display: flex;
+  flex-direction: column;
+  overflow: visible; /* Allow inner content to scroll */
+  position: relative; /* For absolute positioning if needed */
+}
+
+/* Error message styling */
+.error-message {
+  height: auto;
+  min-height: 150px;
+  padding: 1rem;
+}
+
+.error-box {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-align: center;
+}
+
+.error-title {
+  color: #e74c3c;
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.error-details {
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.error-help {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  font-style: italic;
+}
